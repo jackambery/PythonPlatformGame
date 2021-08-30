@@ -35,7 +35,7 @@ class MyGame(arcade.Window):
         self.player_sprite = arcade.Sprite("images/cactus.png", SPRITE_SCALING_PLAYER)
         self.player_sprite.center_x = 50 # Starting position
         self.player_sprite.center_y = 50
-        #self.player_list.append(self.player_sprite)
+        self.player_list.append(self.player_sprite)
 
         # Create the coins
         for i in range(COIN_COUNT):
@@ -48,7 +48,7 @@ class MyGame(arcade.Window):
             coin.center_y = random.randrange(SCREEN_HEIGHT)
 
             # Add the coin to the lists
-            #self.coin_list.append(coin)
+            self.coin_list.append(coin)
 
 
     def on_draw(self):
@@ -61,7 +61,7 @@ class MyGame(arcade.Window):
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. """
         # Generate a list of all coin sprites that collided with the player.  
-        coins_hit_list = arcade.check_for_collision_with_list(self.player_sprite, arcade.SpriteList(self.coin_list))
+        coins_hit_list = (arcade.check_for_collision_with_list(self.player_sprite, arcade.SpriteList(self.coin_list)))
 
         # Loop through each colliding sprite, remove it, and add to the score.
         for coin in coins_hit_list:
