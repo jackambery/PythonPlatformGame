@@ -68,6 +68,13 @@ class DesertEscape(arcade.Window):
         #spawn crow
         arcade.schedule(self.add_crow, 1.0)
 
+        #sounds
+        self.collision_sound = arcade.load_sound("sounds/collision.wav")
+        #self.background_music = arcade.load_sound("sounds/music.wav")
+
+        #play background music
+        #self.play_sound(self.background_music)
+
     def on_draw(self):
         """ Draw all game objects 
         """
@@ -88,6 +95,8 @@ class DesertEscape(arcade.Window):
 
         #did you hit anything? if so, end the game
         if (self.player.collides_with_list(self.enemies_list)) or (self.player.collides_with_list(self.crows_list)):
+            arcade.play_sound(self.collision_sound)
+            #******wait 2 seconds*****
             arcade.close_window()
 
         #update everything
@@ -163,7 +172,7 @@ class DesertEscape(arcade.Window):
         enemy.top = random.randint(10, self.height - 10)
 
         #set velocity
-        enemy.velocity = (random.randint(-10, -5), 0)
+        enemy.velocity = (random.randint(-10, -5), random.randint(-5, 5))
 
         #add to enemy list
         self.enemies_list.append(enemy)
@@ -181,7 +190,7 @@ class DesertEscape(arcade.Window):
         crow.top = random.randint(10, self.height - 10)
 
         #set velocity
-        crow.velocity = (random.randint(-5, -2), 0)
+        crow.velocity = (random.randint(-5, -2), random.randint(-5, 5))
 
         #add to enemy list
         self.crows_list.append(crow)
