@@ -10,11 +10,17 @@ import time
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 700
 SCREEN_TITLE = "Desert Escape"
+PIXEL_SIZE = 32
 PLAYER_SCALING = 0.08
 CROW_SCALING = 0.25
+GRAVITY = 1
+PLAYER_MOVEMENT_SPEED = 5
+PLAYER_JUMP_SPEED = 10
+
+PLAYER_START_X = PIXEL_SIZE * 2
+PLAYER_START_Y = PIXEL_SIZE * 2
 
 # Classes
-
 class FlyingSprite(arcade.Sprite):
     """ Base class for all flying sprites, this includes
         enemies and crows.
@@ -24,7 +30,6 @@ class FlyingSprite(arcade.Sprite):
         """ Updates position of sprite, when it moves off screen,
             remove it.
         """
-        
         #move the sprite
         super().update()
 
@@ -70,13 +75,18 @@ class DesertEscape(arcade.Window):
         self.back4_list = arcade.tilemap.process_layer(my_map, "back4", 1)
 
         #background
-        arcade.set_background_color(arcade.color.TAN)
+        arcade.set_background_color(arcade.color.SKY_BLUE)
 
         #player
         self.player = arcade.Sprite("images/player.png", PLAYER_SCALING)
-        self.player.center_y = self.height / 2
-        self.player.left = 100
+        self.player.top = PLAYER_START_X
+        self.player.left = PLAYER_START_Y
         self.all_sprites.append(self.player)
+
+        #physics engine
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+            self.player, self.ground_list, GRAVITY
+        )
 
         #spawn cactus
         arcade.schedule(self.add_enemy, 0.25)
@@ -86,11 +96,10 @@ class DesertEscape(arcade.Window):
 
         #sounds
         self.collision_sound = arcade.load_sound("sounds/collision.wav")
+        
+        #play background music
         self.background_music = arcade.load_sound("sounds/music.wav")
         self.background_music.play()
-
-        #play background music
-        #self.play_sound(self.background_music)
 
     def on_draw(self):
         """ Draw all game objects 
@@ -118,6 +127,8 @@ class DesertEscape(arcade.Window):
         # if self.paused:
         #     return
 
+        self.physics_engine.update()
+
         #did you hit anything? if so, end the game
         if (self.player.collides_with_list(self.enemies_list)) or (self.player.collides_with_list(self.crows_list)):
             self.collision_sound.play()
@@ -137,20 +148,20 @@ class DesertEscape(arcade.Window):
         if self.player.left < 0:
             self.player.left = 0
 
-    def center_camera_to_player(self):
-        screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
-        screen_center_y = self.player_sprite.center_y - (
-            self.camera.viewport_height / 2
-        )
+    # def center_camera_to_player(self):
+    #     screen_center_x = self.player_sprite.center_x - (self.camera.viewport_width / 2)
+    #     screen_center_y = self.player_sprite.center_y - (
+    #         self.camera.viewport_height / 2
+    #     )
 
-        # Don't let camera travel past 0
-        if screen_center_x < 0:
-            screen_center_x = 0
-        if screen_center_y < 0:
-            screen_center_y = 0
-        player_centered = screen_center_x, screen_center_y
+    #     # Don't let camera travel past 0
+    #     if screen_center_x < 0:
+    #         screen_center_x = 0
+    #     if screen_center_y < 0:
+    #         screen_center_y = 0
+    #     player_centered = screen_center_x, screen_center_y
 
-        self.camera.move_to(player_centered)
+    #     self.camera.move_to(player_centered)
 
     def on_key_press(self, symbol, modifiers):
         """" Handle user keyboard input 
@@ -167,19 +178,20 @@ class DesertEscape(arcade.Window):
             arcade.close_window()
         
         # if symbol == arcade.key.P:
-        #     self.paused = not self.paused
+        #      self.paused = not self.paused
 
         if symbol == arcade.key.W:
-            self.player.change_y = 5
+            if self.physics_engine.can_jump():
+                self.player.change_y = PLAYER_JUMP_SPEED
 
-        if symbol == arcade.key.S:
-            self.player.change_y = -5
+        # if symbol == arcade.key.S:
+        #     self.player.change_y = -5
 
         if symbol == arcade.key.A:
-            self.player.change_x = -5
+            self.player.change_x = -PLAYER_MOVEMENT_SPEED
 
         if symbol == arcade.key.D:
-            self.player.change_x = 5
+            self.player.change_x = PLAYER_MOVEMENT_SPEED
 
     def on_key_release(self, symbol: int, modifiers: int):
         """ Undo movement vectors when movement keys are released 
