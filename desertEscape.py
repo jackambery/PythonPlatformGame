@@ -4,6 +4,7 @@
 # Imports
 import arcade
 import random
+import time
 
 # Constants
 SCREEN_WIDTH = 900
@@ -48,10 +49,25 @@ class DesertEscape(arcade.Window):
         self.enemies_list = arcade.SpriteList()
         self.crows_list = arcade.SpriteList()
         self.all_sprites = arcade.SpriteList()
+        self.ground_list = None
+        self.back1_list = None
+        self.back2_list = None
+        self.back3_list = None
+        self.back4_list = None
+
+
+        self.setup()
         
     def setup(self):
         """ Get the game ready to play
         """
+        my_map = arcade.tilemap.read_tmx("desertMap.tmx")
+
+        self.ground_list = arcade.tilemap.process_layer(my_map, "ground", 1)
+        self.back1_list = arcade.tilemap.process_layer(my_map, "back1", 1)
+        self.back2_list = arcade.tilemap.process_layer(my_map, "back2", 1)
+        self.back3_list = arcade.tilemap.process_layer(my_map, "back3", 1)
+        self.back4_list = arcade.tilemap.process_layer(my_map, "back4", 1)
 
         #background
         arcade.set_background_color(arcade.color.TAN)
@@ -70,7 +86,8 @@ class DesertEscape(arcade.Window):
 
         #sounds
         self.collision_sound = arcade.load_sound("sounds/collision.wav")
-        #self.background_music = arcade.load_sound("sounds/music.wav")
+        self.background_music = arcade.load_sound("sounds/music.wav")
+        self.background_music.play()
 
         #play background music
         #self.play_sound(self.background_music)
@@ -78,8 +95,16 @@ class DesertEscape(arcade.Window):
     def on_draw(self):
         """ Draw all game objects 
         """
-
         arcade.start_render()
+
+        #draw backgrounds in order then ground
+        self.back4_list.draw()
+        self.back3_list.draw()
+        self.back2_list.draw()      
+        self.back1_list.draw()
+        self.ground_list.draw()
+
+        #draw all sprites
         self.all_sprites.draw()
 
     def on_update(self, delta_time: float):
@@ -95,8 +120,8 @@ class DesertEscape(arcade.Window):
 
         #did you hit anything? if so, end the game
         if (self.player.collides_with_list(self.enemies_list)) or (self.player.collides_with_list(self.crows_list)):
-            arcade.play_sound(self.collision_sound)
-            #******wait 2 seconds*****
+            self.collision_sound.play()
+            time.sleep(1)
             arcade.close_window()
 
         #update everything
@@ -187,7 +212,7 @@ class DesertEscape(arcade.Window):
         enemy.top = random.randint(10, self.height - 10)
 
         #set velocity
-        enemy.velocity = (random.randint(-10, -5), random.randint(-5, 5))
+        enemy.velocity = (random.randint(-5, -1), random.randint(-5, 5))
 
         #add to enemy list
         self.enemies_list.append(enemy)
@@ -214,5 +239,5 @@ class DesertEscape(arcade.Window):
 # Main code entry point
 if __name__ == "__main__":
     app = DesertEscape(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    app.setup()
+    #app.setup()
     arcade.run()
