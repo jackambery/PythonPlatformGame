@@ -11,14 +11,12 @@ SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 700
 SCREEN_TITLE = "Desert Escape"
 PIXEL_SIZE = 32
-PLAYER_SCALING = 0.08
+PLAYER_SCALING = 1
+CACTUS_SCALING = 0.08
 CROW_SCALING = 0.25
 GRAVITY = 1
-PLAYER_MOVEMENT_SPEED = 5
-PLAYER_JUMP_SPEED = 10
-
-PLAYER_START_X = PIXEL_SIZE * 2
-PLAYER_START_Y = PIXEL_SIZE * 2
+PLAYER_MOVEMENT_SPEED = 4
+PLAYER_JUMP_SPEED = 12
 
 # Classes
 class FlyingSprite(arcade.Sprite):
@@ -59,7 +57,9 @@ class DesertEscape(arcade.Window):
         self.back2_list = None
         self.back3_list = None
         self.back4_list = None
-
+    
+        #camera that will be used to follow player
+        self.camera = None
 
         self.setup()
         
@@ -79,14 +79,17 @@ class DesertEscape(arcade.Window):
 
         #player
         self.player = arcade.Sprite("images/player.png", PLAYER_SCALING)
-        self.player.top = PLAYER_START_X
-        self.player.left = PLAYER_START_Y
+        self.player.top = 300
+        self.player.left = 100
         self.all_sprites.append(self.player)
 
         #physics engine
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player, self.ground_list, GRAVITY
         )
+
+        #setup camera
+        #!!!!!!!!!self.camera = arcade.Camera(self.width, self.height)
 
         #spawn cactus
         arcade.schedule(self.add_enemy, 0.25)
@@ -219,7 +222,7 @@ class DesertEscape(arcade.Window):
                 delta_time {float} -- how much time has passed since tha last call 
         """
         #create sprite 
-        enemy = FlyingSprite("images/cactus.png", PLAYER_SCALING)
+        enemy = FlyingSprite("images/cactus.png", CACTUS_SCALING)
         enemy.left = random.randint(self.width, self.width + 80)
         enemy.top = random.randint(10, self.height - 10)
 
